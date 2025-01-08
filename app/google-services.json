@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "345615885269",
+    "project_id": "task-minder-app-906a7",
+    "storage_bucket": "task-minder-app-906a7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:345615885269:android:c61ef56457ef82653c535c",
+        "android_client_info": {
+          "package_name": "com.example.Tasks_Minder_App"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQ3ia1PRsrc_dqXDpEr25MSvHjJTt1mRc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
