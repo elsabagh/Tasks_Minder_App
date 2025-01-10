@@ -572,29 +572,6 @@ private fun TaskItemPreview() {
         )
     }
 }
-//
-//@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
-//@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-//@Composable
-//private fun TaskItemCompletedPreview() {
-//    TaskMinderTheme {
-//        TaskItem(
-//            task = Task(
-//                id = "1",
-//                title = "Title",
-//                priority = "High",
-//                dueDate = "01/01/2023",
-//                dueTime = "12:00",
-//                description = "Description",
-//                completed = true,
-//                alert = false,
-//                userId = "2"
-//            ),
-//            onTaskClick = {},
-//            onTaskCheckedChange = {}
-//        )
-//    }
-//}
 
 @Preview(showBackground = true)
 @Composable

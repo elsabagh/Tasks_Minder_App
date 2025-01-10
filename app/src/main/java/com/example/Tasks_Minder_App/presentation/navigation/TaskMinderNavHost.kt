@@ -8,6 +8,9 @@ import androidx.navigation.compose.composable
 import com.example.Tasks_Minder_App.TaskMinderAppState
 import com.example.Tasks_Minder_App.presentation.screen.account.AccountScreen
 import com.example.Tasks_Minder_App.presentation.screen.editTask.EditTaskScreen
+import com.example.Tasks_Minder_App.presentation.screen.login.LoginScreen
+import com.example.Tasks_Minder_App.presentation.screen.settings.SettingsScreen
+import com.example.Tasks_Minder_App.presentation.screen.signup.SignUpScreen
 import com.example.Tasks_Minder_App.presentation.screen.splash.SplashScreen
 import com.example.Tasks_Minder_App.presentation.screen.task.TasksScreen
 import com.example.Tasks_Minder_App.presentation.screen.theme.ThemeScreen
@@ -44,31 +47,31 @@ fun TaskMinderNavHost(
             )
         }
 
-//        // Login Screen - Screen where users can sign in
-//        composable(route = LoginDestination.route) {
-//            LoginScreen(
-//                onSignInClick = {
-//                    // After sign-in, navigate to the Tasks screen and pop up to the Tasks destination
-//                    appState.navigateSingleTopToAndPopupTo(
-//                        route = TasksDestination.route,
-//                        popUpToRoute = TasksDestination.route
-//                    )
-//                }
-//            )
-//        }
+        // Login Screen - Screen where users can sign in
+        composable(route = LoginDestination.route) {
+            LoginScreen(
+                onSignInClick = {
+                    // After sign-in, navigate to the Tasks screen and pop up to the Tasks destination
+                    appState.navigateSingleTopToAndPopupTo(
+                        route = TasksDestination.route,
+                        popUpToRoute = TasksDestination.route
+                    )
+                }
+            )
+        }
 //
-//        // Sign Up Screen - Screen where users can sign up for a new account
-//        composable(route = SignUpDestination.route) {
-//            SignUpScreen(
-//                onSignUpClick = {
-//                    // After sign-up, navigate to the Tasks screen and pop up to the Tasks destination
-//                    appState.navigateSingleTopToAndPopupTo(
-//                        route = TasksDestination.route,
-//                        popUpToRoute = TasksDestination.route
-//                    )
-//                }
-//            )
-//        }
+        // Sign Up Screen - Screen where users can sign up for a new account
+        composable(route = SignUpDestination.route) {
+            SignUpScreen(
+                onSignUpClick = {
+                    // After sign-up, navigate to the Tasks screen and pop up to the Tasks destination
+                    appState.navigateSingleTopToAndPopupTo(
+                        route = TasksDestination.route,
+                        popUpToRoute = TasksDestination.route
+                    )
+                }
+            )
+        }
 
         // Tasks Screen - Main screen showing a list of tasks
         composable(route = TasksDestination.route) {
@@ -90,16 +93,16 @@ fun TaskMinderNavHost(
             )
         }
 
-//        // Settings Screen - Screen to manage app settings
-//        composable(route = SettingsDestination.route) {
-//            SettingsScreen(
-//                onNavigateUp = { appState.popUp() },
-//                onNavigateToAccount = {
-//                    appState.navigate(AccountDestination.route)
-//                },
-//                onNavigateToTheme = { appState.navigate(ThemeDestination.route) }
-//            )
-//        }
+        // Settings Screen - Screen to manage app settings
+        composable(route = SettingsDestination.route) {
+            SettingsScreen(
+                onNavigateUp = { appState.popUp() },
+                onNavigateToAccount = {
+                    appState.navigate(AccountDestination.route)
+                },
+                onNavigateToTheme = { appState.navigate(ThemeDestination.route) }
+            )
+        }
 
         // Theme Screen - Screen to modify the app theme settings
         composable(route = ThemeDestination.route) {

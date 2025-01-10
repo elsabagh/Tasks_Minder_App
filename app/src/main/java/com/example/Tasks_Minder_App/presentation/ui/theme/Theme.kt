@@ -338,14 +338,13 @@ private val purpleDarkScheme = darkColorScheme(
     surfaceContainerHigh = purpleSurfaceContainerHighDark,
     surfaceContainerHighest = purpleSurfaceContainerHighestDark,
 )
-
 @Composable
 fun TaskMinderTheme(
     themeColor: ThemeColor = ThemeColor.RED,
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    dynamicColor: Boolean = false,
+    content: @Composable() () -> Unit
 ) {
     val lightScheme = when (themeColor) {
         ThemeColor.RED -> redLightScheme

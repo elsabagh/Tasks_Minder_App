@@ -34,11 +34,11 @@ fun String.isPasswordValid(): Boolean {
 /**
  * Checks if the current password matches the repeated password.
  *
- * @param repeatedPassword The repeated password to compare with.
+ * @param confirmPassword The repeated password to compare with.
  * @return true if both passwords match, false otherwise.
  */
-fun String.passwordMatches(repeatedPassword: String): Boolean {
-    return this == repeatedPassword
+fun String.passwordMatches(confirmPassword: String): Boolean {
+    return this == confirmPassword
 }
 
 /**

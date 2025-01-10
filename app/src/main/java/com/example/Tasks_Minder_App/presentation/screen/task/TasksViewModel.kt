@@ -43,10 +43,8 @@ class TasksViewModel @Inject constructor(
     val tasksUiState: StateFlow<TasksUiState> = _tasksUiState
         .map { tasksUiState ->
             tasksUiState.copy(
-//                selectedDayInMonth = tasksUiState.selectedDayInMonth.padStart(2, '0'),
                 selectedDayInMonth = tasksUiState.selectedDayInMonth.formatDay(),
                 weekdaysAndDaysInMonth = tasksUiState.weekdaysAndDaysInMonth.map { (weekday, day) ->
-//                    weekday to day.padStart(2, '0')
                     weekday to day.formatDay()
                 }
             )
