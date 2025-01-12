@@ -18,7 +18,6 @@ hiltPlugin = "2.51.1"
 hiltAndroidTesting = "2.52"
 navigationTesting = "2.8.5"
 uiTextGoogleFonts = "1.7.6"
-composeMaterial3 = "1.0.0-alpha30"
 firebaseCrashlyticsBuildtools = "3.0.2"
 gmsGoogleServices = "4.4.2"
 jetbrainsKotlinJvm = "2.0.0"
@@ -52,10 +51,8 @@ androidx-navigation-testing = { module = "androidx.navigation:navigation-testing
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hiltAndroidTesting" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
-androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltCompiler" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltCompiler" }
 androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
-androidx-compose-material3 = { group = "androidx.wear.compose", name = "compose-material3", version.ref = "composeMaterial3" }
 firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebaseCrashlyticsBuildtools" }
 
 [plugins]

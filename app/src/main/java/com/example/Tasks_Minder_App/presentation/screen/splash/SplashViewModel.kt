@@ -1,7 +1,6 @@
 package com.example.Tasks_Minder_App.presentation.screen.splash
 
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import com.example.Tasks_Minder_App.TaskMinderViewModel
 import com.example.Tasks_Minder_App.data.service.AccountService
@@ -9,6 +8,8 @@ import com.example.Tasks_Minder_App.data.service.ConfigurationService
 import com.example.Tasks_Minder_App.data.service.LogService
 import com.google.firebase.auth.FirebaseAuthException
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 /**
@@ -34,9 +35,8 @@ class SplashViewModel @Inject constructor(
      * A state indicating if the account is ready for use.
      * Once the user is signed in or an anonymous account is created, this value will be set to true.
      */
-    private var _isAccountReady = mutableStateOf(false)
-    val isAccountReady: State<Boolean>
-        get() = _isAccountReady
+    private var _isAccountReady = MutableStateFlow(false)
+    val isAccountReady: StateFlow<Boolean> = _isAccountReady
 
     /**
      * A state indicating whether an error occurred during the app startup process, such as

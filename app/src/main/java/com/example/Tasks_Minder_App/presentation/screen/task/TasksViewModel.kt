@@ -174,4 +174,10 @@ class TasksViewModel @Inject constructor(
             storageService.updateTask(task.copy(completed = !task.completed))
         }
     }
+
+    fun deleteTask(task: Task) {
+        launchCatching {
+            storageService.deleteTask(task.id)
+        }
+    }
 }

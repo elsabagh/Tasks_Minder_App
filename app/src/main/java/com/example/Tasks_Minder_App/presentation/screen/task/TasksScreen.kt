@@ -1,15 +1,18 @@
 package com.example.Tasks_Minder_App.presentation.screen.task
 
 import android.content.res.Configuration
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,6 +29,8 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -33,20 +38,30 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -60,6 +75,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.Tasks_Minder_App.R
 import com.example.Tasks_Minder_App.data.model.Task
+import com.example.Tasks_Minder_App.presentation.common.snackbar.SnackBarManager
 import com.example.Tasks_Minder_App.presentation.ui.theme.TaskMinderTheme
 
 /**
@@ -91,6 +107,7 @@ fun TasksScreen(
         onSettingsClick = onSettingsClick,
         onTaskClick = onTaskClick,
         onTaskCheckedChange = tasksViewModel::flagTask,
+        onTaskDelete = tasksViewModel::deleteTask,
         tasks = tasks,
         onYearSelected = tasksViewModel::updateSelectedYear,
         onNextMonthClicked = tasksViewModel::selectNextMonth,
@@ -126,6 +143,7 @@ fun TasksScreenContent(
     onSettingsClick: () -> Unit,
     onTaskClick: (Task) -> Unit,
     onTaskCheckedChange: (Task) -> Unit,
+    onTaskDelete: (Task) -> Unit,
     tasks: List<Task>,
     onYearSelected: (Int) -> Unit,
     onNextMonthClicked: () -> Unit,
@@ -198,6 +216,7 @@ fun TasksScreenContent(
                 tasks = tasks,
                 onTaskClick = onTaskClick,
                 onTaskCheckedChange = onTaskCheckedChange,
+                onTaskDelete = onTaskDelete,
                 modifier = Modifier.padding(
                     start = dimensionResource(R.dimen.task_item_inner_surface_start_padding),
                     end = dimensionResource(R.dimen.task_item_inner_surface_end_padding)
@@ -451,88 +470,164 @@ fun HorizontalDayPicker(
     }
 }
 
+
+@Composable
+fun DismissBackground(dismissDirection: SwipeToDismissBoxValue?) {
+    val backgroundColor = when (dismissDirection) {
+        SwipeToDismissBoxValue.EndToStart -> Color(0xFFFF1744) // Red for delete
+        else -> Color.Transparent // Default or no action
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundColor)
+            .padding(16.dp),
+        contentAlignment = Alignment.CenterEnd
+    ) {
+        if (dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = "Delete",
+                tint = Color.White
+            )
+        }
+    }
+}
+
 @Composable
 fun TaskItem(
     task: Task,
     onTaskClick: () -> Unit,
     onTaskCheckedChange: () -> Unit,
+    onTaskDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        shape = MaterialTheme.shapes.small,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = modifier.clickable { onTaskClick() }
-    ) {
-        Surface(
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            modifier = modifier.padding(start = dimensionResource(R.dimen.task_item_inner_surface_start_padding))
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+    var showDialog by remember { mutableStateOf(false) }
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = { value ->
+            when (value) {
+                SwipeToDismissBoxValue.EndToStart -> {
+                    showDialog = true // Trigger dialog when swiped
+                    false // Prevent immediate deletion
+                }
+
+                else -> false
+            }
+        },
+        positionalThreshold = { it * 0.25f } // Threshold for swipe
+    )
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = {
+                Text(stringResource(R.string.delete_task))
+            },
+            text = {
+                Text(stringResource(R.string.delete_task_confirmation))
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    onTaskDelete()
+                    showDialog = false
+                    SnackBarManager.showMessage(R.string.item_deleted)
+                }) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    SwipeToDismissBox(
+        state = dismissState,
+        modifier = modifier.clip(shape = MaterialTheme.shapes.small),
+        backgroundContent = { DismissBackground(dismissState.dismissDirection) },
+        content = {
+            Surface(
+                shape = MaterialTheme.shapes.small,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = modifier.clickable { onTaskClick() }
             ) {
-                Column(
-                    modifier = modifier
-                        .weight(1f)
-                        .padding(dimensionResource(R.dimen.task_item_content_padding))
+                Surface(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = modifier.padding(start = dimensionResource(R.dimen.task_item_inner_surface_start_padding))
                 ) {
-                    Text(
-                        text = task.title,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-
-                    )
-
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.task_item_time_and_icon_horizontal_spacing))
-
                     ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.access_time_24),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Column(
+                            modifier = modifier
+                                .weight(1f)
+                                .padding(dimensionResource(R.dimen.task_item_content_padding))
+                        ) {
+                            Text(
+                                text = task.title,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
 
-                        Text(
-                            text = task.dueTime,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.task_item_time_and_icon_horizontal_spacing))
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.access_time_24),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+
+                                Text(
+                                    text = task.dueTime,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        IconButton(
+                            onClick = onTaskCheckedChange,
+                            modifier = modifier
+                                .padding(end = dimensionResource(R.dimen.task_item_checkbox_end_padding))
+                                .border(
+                                    width = dimensionResource(R.dimen.task_item_checkbox_border_width),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    shape = CircleShape
+                                )
+                                .background(
+                                    color = if (task.completed) MaterialTheme.colorScheme.primary.copy(
+                                        alpha = 0.7f
+                                    )
+                                    else Color.Transparent,
+                                    shape = CircleShape
+                                )
+                                .size(dimensionResource(R.dimen.task_item_checkbox_size))
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.check_circle_24),
+                                contentDescription = null,
+                                tint = if (task.completed) MaterialTheme.colorScheme.onPrimary
+                                else Color.Transparent
+                            )
+                        }
                     }
-                }
-                IconButton(
-                    onClick = onTaskCheckedChange,
-                    modifier = modifier
-                        .padding(end = dimensionResource(R.dimen.task_item_checkbox_end_padding))
-                        .border(
-                            width = dimensionResource(R.dimen.task_item_checkbox_border_width),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            shape = CircleShape
-                        )
-                        .background(
-                            color = if (task.completed) MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
-                            else Color.Transparent,
-                            shape = CircleShape
-                        )
-                        .size(dimensionResource(R.dimen.task_item_checkbox_size))
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.check_circle_24),
-                        contentDescription = null,
-                        tint = if (task.completed) MaterialTheme.colorScheme.onPrimary
-                        else Color.Transparent
-                    )
                 }
             }
         }
-    }
+    )
 }
+
 
 @Composable
 fun TaskItemList(
     tasks: List<Task>,
     onTaskClick: (Task) -> Unit,
     onTaskCheckedChange: (Task) -> Unit,
+    onTaskDelete: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -544,7 +639,8 @@ fun TaskItemList(
             TaskItem(
                 task = task,
                 onTaskClick = { onTaskClick(task) },
-                onTaskCheckedChange = { onTaskCheckedChange(task) }
+                onTaskCheckedChange = { onTaskCheckedChange(task) },
+                onTaskDelete = { onTaskDelete(task) }
             )
         }
     }
@@ -568,7 +664,8 @@ private fun TaskItemPreview() {
                 userId = "2"
             ),
             onTaskClick = {},
-            onTaskCheckedChange = {}
+            onTaskCheckedChange = {},
+            onTaskDelete = {}
         )
     }
 }
@@ -601,6 +698,7 @@ private fun TasksScreenContentPreview() {
             onNextMonthClicked = {},
             onPreviousMonthClicked = {},
             onSelectedDayInMonthChange = {},
+            onTaskDelete = {}
         )
     }
 }

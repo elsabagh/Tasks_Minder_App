@@ -23,7 +23,7 @@
     <dimen name="floating_action_button_padding">16dp</dimen>
     <dimen name="task_item_time_and_icon_horizontal_spacing">5dp</dimen>
     <dimen name="task_item_padding">10dp</dimen>
-    <dimen name="task_item_inner_surface_start_padding">10dp</dimen>
+    <dimen name="task_item_inner_surface_start_padding">15dp</dimen>
     <dimen name="task_item_content_padding">15dp</dimen>
     <dimen name="task_item_checkbox_end_padding">10dp</dimen>
     <dimen name="task_item_checkbox_border_width">2dp</dimen>

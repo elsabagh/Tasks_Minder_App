@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.Tasks_Minder_App.R
 import com.example.Tasks_Minder_App.utils.Constants.SPLASH_SCREEN_TIMEOUT
 import kotlinx.coroutines.delay
@@ -39,7 +40,7 @@ fun SplashScreen(
     modifier: Modifier = Modifier
 ) {
     val viewModel: SplashViewModel = hiltViewModel()
-    val isAccountReady by viewModel.isAccountReady
+    val isAccountReady by viewModel.isAccountReady.collectAsStateWithLifecycle()
 
     SplashScreenContent(
         modifier = modifier,
