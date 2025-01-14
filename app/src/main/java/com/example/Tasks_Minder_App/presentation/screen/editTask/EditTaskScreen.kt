@@ -1,12 +1,11 @@
 package com.example.Tasks_Minder_App.presentation.screen.editTask
 
+import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
@@ -32,7 +31,6 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,7 +42,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.Tasks_Minder_App.R
@@ -64,6 +61,7 @@ import java.util.Calendar
 fun EditTaskScreen(
     navigateBack: () -> Unit,
     onTaskSaved: () -> Unit,
+    context: Context,
     modifier: Modifier = Modifier
 ) {
     val editTaskViewModel: EditTaskViewModel = hiltViewModel()
@@ -83,7 +81,7 @@ fun EditTaskScreen(
     val onPriorityChangeMemoized: (String) -> Unit =
         remember { editTaskViewModel::onPriorityChange }
     val onAlertChangeMemoized: (Boolean) -> Unit = remember { editTaskViewModel::onAlertChange }
-    val onSaveTaskMemoized: () -> Unit = remember { editTaskViewModel::onSaveTask }
+    val onSaveTaskMemoized: () -> Unit = remember { { editTaskViewModel.onSaveTask(context) } }
 
     LaunchedEffect(isTaskSaved) {
         if (isTaskSaved) {
@@ -334,42 +332,23 @@ fun TimeSelectionDialog(
 ) {
     val currentTime = Calendar.getInstance()
     val timePickerState = rememberTimePickerState(
-        initialHour = currentTime.get(Calendar.HOUR),
+        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
         initialMinute = currentTime.get(Calendar.MINUTE),
         is24Hour = false
     )
-    var isAM by remember { mutableStateOf(currentTime.get(Calendar.AM_PM) == Calendar.AM) }
-
     TimePickerDialog(
         onDismiss = onDismiss,
         onConfirm = {
-            val hour = if (isAM) timePickerState.hour else timePickerState.hour + 12
-            onConfirm(hour, timePickerState.minute)
+            onConfirm(
+                timePickerState.hour,
+                timePickerState.minute
+            )
         },
         modifier = modifier
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            TimePicker(
-                state = timePickerState
-            )
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                TextButton(onClick = { isAM = true }) {
-                    Text(
-                        text = "AM",
-                        color = if (isAM) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                    )
-                }
-                TextButton(onClick = { isAM = false }) {
-                    Text(
-                        text = "PM",
-                        color = if (isAM) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-        }
+        TimePicker(
+            state = timePickerState
+        )
     }
 }
 
@@ -550,15 +529,15 @@ private fun AlertOptionPreview() {
     showBackground = true,
     showSystemUi = true,
 )
-@Composable
-private fun EditTaskScreenPreview() {
-    TaskMinderTheme {
-        EditTaskScreen(
-            navigateBack = {},
-            onTaskSaved = {}
-        )
-    }
-}
+//@Composable
+//private fun EditTaskScreenPreview() {
+//    TaskMinderTheme {
+//        EditTaskScreen(
+//            navigateBack = {},
+//            onTaskSaved = {}
+//        )
+//    }
+//}
 
 @Preview
 @Composable

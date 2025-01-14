@@ -33,4 +33,7 @@ object Constants {
      */
     const val LINK_ACCOUNT_TRACE = "linkAccount"
 
+    const val REQUEST_CODE_SCHEDULE_EXACT_ALARM = 1001
+
+
 }

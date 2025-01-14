@@ -1,5 +1,9 @@
 package com.example.Tasks_Minder_App.presentation.screen.editTask
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.SavedStateHandle
 import com.example.Tasks_Minder_App.TaskMinderViewModel
 import com.example.Tasks_Minder_App.data.model.Task
@@ -9,6 +13,7 @@ import com.example.Tasks_Minder_App.data.service.StorageService
 import com.example.Tasks_Minder_App.presentation.common.ext.toClockPattern
 import com.example.Tasks_Minder_App.presentation.navigation.EditTaskDestination
 import com.example.Tasks_Minder_App.utils.DateTimeFormatter
+import com.example.Tasks_Minder_App.utils.TaskAlarmReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -126,7 +131,7 @@ class EditTaskViewModel @Inject constructor(
      * Saves the current task.
      * If the task is new (id is blank), it adds the task, otherwise it updates the task.
      */
-    fun onSaveTask() {
+    fun onSaveTask(context: Context) {
         launchCatching {
             val editedTask = _task.value
             if (editedTask.id.isBlank()) {
@@ -134,6 +139,7 @@ class EditTaskViewModel @Inject constructor(
             } else {
                 storageService.updateTask(editedTask)
             }
+            scheduleTaskAlarm(context, editedTask)
             _isTaskSaved.value = true
         }
     }
@@ -143,5 +149,21 @@ class EditTaskViewModel @Inject constructor(
      */
     fun resetTaskSaved() {
         _isTaskSaved.value = false
+    }
+
+    fun scheduleTaskAlarm(context: Context, task: Task) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, TaskAlarmReceiver::class.java).apply {
+            putExtra("taskTitle", task.title)
+        }
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            task.id.hashCode(),
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val dueTime = DateTimeFormatter.convertDateTimeToMillis(task.dueDate, task.dueTime)
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, dueTime, pendingIntent)
     }
 }

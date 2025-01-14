@@ -3,6 +3,7 @@ package com.example.Tasks_Minder_App.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.Tasks_Minder_App.TaskMinderAppState
@@ -89,7 +90,8 @@ fun TaskMinderNavHost(
         ) {
             EditTaskScreen(
                 navigateBack = { appState.popUp() },
-                onTaskSaved = { appState.popUp() }
+                onTaskSaved = { appState.popUp() },
+                context = LocalContext.current
             )
         }
 

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">tasks_minder_app</string>
+    <string name="app_name">task minder</string>
     <string name="task_date_placeholder">MM/dd/yyyy</string>"
     <string name="task_time_placeholder">Pick a time</string>
     <string name="task_title">Title</string>

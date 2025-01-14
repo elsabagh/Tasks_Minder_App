@@ -31,4 +31,28 @@ object DateTimeFormatter {
         val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
         return formatter.format(Date(millis))
     }
+
+
+    /**
+     * Converts a date and time string to a timestamp in milliseconds.
+     *
+     * @param date The date string in the pattern "MM/dd/yyyy".
+     * @param time The time string in the pattern "HH:mm".
+     * @return The timestamp in milliseconds.
+     *
+     * Example usage:
+     * ```
+     * val millis = DateTimeFormatter.convertDateTimeToMillis("12/01/2024", "14:30")
+     * println(millis) // Output: 1735725000000 (depending on the date and time)
+     * ```
+     *
+     * Note:
+     * - The function uses the default locale of the device to ensure region-appropriate formatting.
+     * - Be cautious with locale-specific differences in date and time representations.
+     */
+    fun convertDateTimeToMillis(date: String, time: String): Long {
+        val formatter = SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault())
+        val dateTimeString = "$date $time"
+        return formatter.parse(dateTimeString)?.time ?: 0L
+    }
 }

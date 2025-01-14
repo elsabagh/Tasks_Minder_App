@@ -11,5 +11,6 @@ data class Task(
     val description: String = "",
     val completed: Boolean = false,
     val alert: Boolean = false,
-    val userId: String = ""
+    val userId: String = "",
+    val notificationId: Int = (0..Int.MAX_VALUE).random() // Add a unique notification ID
 )
