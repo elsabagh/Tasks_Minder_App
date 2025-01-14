@@ -55,6 +55,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -93,6 +94,7 @@ fun TasksScreen(
     val tasksViewModel: TasksViewModel = hiltViewModel()
     val tasks by tasksViewModel.tasks.collectAsStateWithLifecycle()
     val tasksUiState by tasksViewModel.tasksUiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     TasksScreenContent(
         tasksUiState = tasksUiState,
@@ -100,7 +102,7 @@ fun TasksScreen(
         onSettingsClick = onSettingsClick,
         onTaskClick = onTaskClick,
         onTaskCheckedChange = tasksViewModel::flagTask,
-        onTaskDelete = tasksViewModel::deleteTask,
+        onTaskDelete = { task -> tasksViewModel.deleteTask(context, task) },
         tasks = tasks,
         onYearSelected = tasksViewModel::updateSelectedYear,
         onNextMonthClicked = tasksViewModel::selectNextMonth,

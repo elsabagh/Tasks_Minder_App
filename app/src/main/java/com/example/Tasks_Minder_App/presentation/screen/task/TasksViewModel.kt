@@ -1,12 +1,17 @@
 package com.example.Tasks_Minder_App.presentation.screen.task
 
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.viewModelScope
 import com.example.Tasks_Minder_App.TaskMinderViewModel
 import com.example.Tasks_Minder_App.data.model.Task
 import com.example.Tasks_Minder_App.data.service.LogService
 import com.example.Tasks_Minder_App.data.service.StorageService
 import com.example.Tasks_Minder_App.presentation.common.ext.formatDay
+import com.example.Tasks_Minder_App.utils.TaskAlarmReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -175,8 +180,16 @@ class TasksViewModel @Inject constructor(
         }
     }
 
-    fun deleteTask(task: Task) {
+    fun deleteTask(context: Context, task: Task) {
         launchCatching {
+            // Cancel the alarm for the task
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(context, TaskAlarmReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(context, task.id.hashCode(), intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+            alarmManager.cancel(pendingIntent)
+            pendingIntent.cancel()
+
+            // Delete the task from the storage
             storageService.deleteTask(task.id)
         }
     }

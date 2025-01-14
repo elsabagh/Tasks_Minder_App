@@ -101,4 +101,6 @@ dependencies {
     androidTestImplementation(libs.androidx.navigation.testing)
     // For instrumented tests.
     androidTestImplementation(libs.hilt.android.testing)
+
+    implementation(libs.androidx.work.runtime.ktx)
 }

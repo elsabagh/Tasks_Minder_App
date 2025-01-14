@@ -131,6 +131,12 @@ class EditTaskViewModel @Inject constructor(
      * Saves the current task.
      * If the task is new (id is blank), it adds the task, otherwise it updates the task.
      */
+
+    private fun turnOnNotifications(context: Context, task: Task) {
+        // Your notification logic here
+        scheduleTaskAlarm(context, task)
+    }
+
     fun onSaveTask(context: Context) {
         launchCatching {
             val editedTask = _task.value
@@ -139,7 +145,9 @@ class EditTaskViewModel @Inject constructor(
             } else {
                 storageService.updateTask(editedTask)
             }
-            scheduleTaskAlarm(context, editedTask)
+            if (_isAlertEnabled.value) {
+                turnOnNotifications(context, editedTask)
+            }
             _isTaskSaved.value = true
         }
     }
@@ -162,8 +170,12 @@ class EditTaskViewModel @Inject constructor(
             intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
-
         val dueTime = DateTimeFormatter.convertDateTimeToMillis(task.dueDate, task.dueTime)
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, dueTime, pendingIntent)
+
+        if (task.alert) {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, dueTime, pendingIntent)
+        } else {
+            alarmManager.cancel(pendingIntent)
+        }
     }
 }
